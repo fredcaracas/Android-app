@@ -1,0 +1,11 @@
+.page__background{
+    background-image: url(img/4.jpg);
+    background-repeat: no-repeat;
+  
+}
+section{
+    padding: 15px;
+    padding: 15px;
+}
+#map { height: 200px; }
+#map2 { height: 500px; }

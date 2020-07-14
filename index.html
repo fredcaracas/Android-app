@@ -1,0 +1,368 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tienda Natural</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
+        </script>
+    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+    <script src="functions.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script type="text/javascript" src="cordova.js"></script>
+    <!-- Mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+</head>
+
+<body>
+    <ons-modal direction="up" id="cargando">
+        <div style="text-align: center">
+            <p>
+                <ons-icon icon="md-spinner" size="45px" spin></ons-icon>
+            </p>
+        </div>
+    </ons-modal>
+    <ons-splitter>
+        <ons-splitter>
+            <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
+                <ons-page>
+
+                    <ons-list>
+                        <ons-list-item onclick="fn.load('t_productos','p_productos')" modifier="chevron" tappable
+                            tap-background-color="#3ED47A">
+                            <ons-icon icon="fa-cart-plus" size="20px"></ons-icon>&nbsp;Productos
+                        </ons-list-item>
+                        <ons-list-item onclick="fn.load('t_sucursales','p_sucursales')" modifier="chevron" tappable
+                            tap-background-color="#3ED47A">
+                            <ons-icon icon="fa-store" size="20px"></ons-icon>&nbsp;Sucursales
+                        </ons-list-item>
+                        <ons-list-item onclick="fn.load('t_busquedas','p_busquedas')" modifier="chevron" tappable
+                            tap-background-color="#3ED47A">
+                            <ons-icon icon="fa-search" size="20px"></ons-icon>&nbsp;Busquedas Guardadas
+                        </ons-list-item>
+                        <ons-list-item id="btn_logout" tappable tap-background-color="#3ED47A">
+                            <ons-icon icon="fa-sign-out-alt" size="20px"></ons-icon>&nbsp;Salir
+                        </ons-list-item>
+                    </ons-list>
+                </ons-page>
+            </ons-splitter-side>
+            <ons-splitter-content id="content">
+                <ons-navigator page="t_login" id="nav"></ons-navigator>
+            </ons-splitter-content>
+        </ons-splitter>
+        <template id="t_sucursales">
+            <ons-page id="p_sucursales">
+                <ons-toolbar>
+                    <div class="left">
+                        <ons-toolbar-button icon="fa-bars" onclick="fn.open()"></ons-toolbar-button>
+                    </div>
+                    <div class="center">
+                        Sucursales2
+                    </div>
+                </ons-toolbar>
+                <h1>Sucursales</h1>
+                <section>
+                    <p id="suc"></p>
+                    <ons-list id="l_list"></ons-list> 
+                </section>
+                <script>
+                    ons.getScriptPage().onShow = function () {
+                        //invocar API para listado de productos.
+                        $("#cargando").show();
+                        $.ajax({
+                            url: "http://tiendanatural2020.herokuapp.com/api/product/all",
+                            type: "GET",
+                            dataType: "json",
+                            contentType: 'application/json',
+                            success: function (respuesta) {
+                                //console.log(respuesta);
+                                //recorrer la respuesta y armar el listado   
+                                var item = "";
+                                var unico = [],
+                                    sucursales;
+                                $.each(respuesta, function (key, producto) {
+                                    sucursales = producto.branches[0].name;
+                                    if ($.inArray(sucursales, unico) === -1) {
+                                        unico.push(sucursales);
+                                        $("#suc").append(sucursales);
+                                       item = '<ons-list-item modifier="chevron longdivider" tappable tap-background-color="#3ED47A" class="listado_su" data-id="' +
+                                        producto._id + '"><div class="left"><ons-icon icon="md-face" class="list-item__icon"></ons-icon>></div>\
+                                    <div class="center"> \
+                                    </div>\
+                                    </ons-list-item>';
+                                    }
+
+                                });
+                            },
+                            error: function (xml, err, status) {
+                                ons.notification.toast(xml.responseJSON.descripcion, {
+                                    "timeout": 3000
+                                });
+                            },
+                            complete: function () {
+                                $("#cargando").hide();
+                            }
+                        });
+                    } 
+                </script>
+            </ons-page>
+        </template>
+        <template id="t_busquedas">
+            <ons-page id="t_busquedas">
+                <ons-toolbar>
+                    <div class="left">
+                        <ons-toolbar-button icon="fa-bars" onclick="fn.open()"></ons-toolbar-button>
+                    </div>
+                    <div class="center">
+                        Busquedas Guardadas
+                    </div>
+                </ons-toolbar>
+            </ons-page>
+        </template>
+        <template id="t_registro">
+            <ons-page id="p_registro">
+                <section>
+                    <h1>Registro de usuario</h1>
+                    <label for="email">Email</label>
+                    <p><input class="text-input text-input--material" type="text" id="email"
+                            placeholder="Ingrese usuario">
+                    </p>
+                    <label for="password">Contrase&ntilde;a</label>
+                    <p> <input class="text-input text-input--material" type="password" id="password"
+                            placeholder="Ingrese contrase&ntilde;a"></p>
+                    <label for="repassword">Re contrase&ntilde;a</label>
+                    <p> <input class="text-input text-input--material" type="password" id="repassword"
+                            placeholder="Ingrese repetici&oacute;n"></p>
+                    <!--<input type="button" id="btn_registro" value="Registrarse">-->
+                    <p>
+                        <ons-button id="btn_registro">Registrarse</ons-button>
+                    </p>
+                </section>
+            </ons-page>
+        </template>
+        <template id="t_login">
+            <ons-page id="p_login">
+                <script>
+                    ons.getScriptPage().onInit = function () {
+
+                        $(document).on("click", "#btn_login", function () {
+                            try {
+                                var email = $("#inp_login_usuario").val();
+                                var pwd = $("#inp_login_pwd").val();
+                                if (!email) {
+                                    throw "Ingrese email para continuar";
+                                }
+                                if (!pwd) {
+                                    throw "Ingrese contrase&ntilde;a para continuar";
+                                }
+                                $("#cargando").show();
+                                $.ajax({
+                                    //invoco api login.
+                                    url: "http://tiendanatural2020.herokuapp.com/api/user/login",
+                                    data: JSON.stringify({
+                                        "email": email,
+                                        "password": pwd
+                                    }),
+                                    type: "POST",
+                                    dataType: "json",
+                                    contentType: 'application/json',
+                                    success: function (respuesta) {
+                                        var usuario = respuesta;
+                                        usuario = JSON.stringify(usuario);
+                                        sessionStorage.setItem("usuario", usuario);
+                                        var nav = document.getElementById("nav");
+                                        //Redirecciono a listado de productos
+                                        nav.pushPage("t_productos");
+                                    },
+                                    error: function (xml, err, status) {
+                                        ons.notification.toast(
+                                            "Email o contrase&ntilde;a incorrectos", {
+                                            "timeout": 3000
+                                        });
+                                    },
+                                    complete: function () {
+                                        $("#cargando").hide();
+                                    }
+                                });
+                            } catch (e) {
+                                ons.notification.toast(e, {
+                                    "timeout": 3000
+                                });
+                            }
+                        });
+
+                        $(document).on("click", "#btn_login_registro", function () {
+                            var nav = document.getElementById("nav");
+                            //Redirecciono a template de registro 
+                            nav.pushPage("t_registro");
+                        });
+                    }
+                </script>
+                <section>
+                    <h1>Ingreso</h1>
+                    <label for="inp_login_usuario"></label>
+                    <p><input class="text-input text-input--material" type="text" id="inp_login_usuario"
+                            placeholder="Ingrese usuario"></p>
+                    <label for="inp_login_pwd"></label>
+                    <p><input class="text-input text-input--material" type="password" id="inp_login_pwd"
+                            placeholder="Ingrese contrase&ntilde;a">
+                        <p>
+                            <ons-button id="btn_login">Login</ons-button>
+                            <ons-button modifier="outline" id="btn_login_registro">Registro</ons-button>
+                        </p>
+                </section>
+            </ons-page>
+        </template>
+        <template id="t_productos">
+            <ons-page id="p_productos">
+                <script>
+                    var productos;
+                    ons.getScriptPage().onInit = function () {
+
+                        //eventos click a nivel de pagina
+                        $(document).on("click", ".listado_locales", function () {
+                            var id_produc = $(this).data("id");
+                            //var nav = document.getElementById("nav");
+                            //Redirecciono a info del producto con parametro id
+                            //nav.pushPage("t_infoproducto"", {data:{id:id_local}});
+                            var un_producto = buscar_producto(productos, id_produc);
+                            fn.load("t_infoproducto", "p_infoproducto", { data: { producto: un_producto } });
+                        });
+                    }
+
+                    ons.getScriptPage().onShow = function () {
+                        //invocar API para listado de productos.
+                        $("#cargando").show();
+                        $.ajax({
+                            url: "http://tiendanatural2020.herokuapp.com/api/product/all",
+                            type: "GET",
+                            dataType: "json",
+                            contentType: 'application/json',
+                            success: function (respuesta) {
+                                //console.log(respuesta);
+                                //recorrer la respuesta y armar el listado   
+                                productos = respuesta;
+                                var item = "";
+                                $.each(respuesta, function (key, producto) {
+                                    item =
+                                        '<ons-list-item modifier="chevron longdivider" tappable tap-background-color="#3ED47A" class="listado_locales" data-id="' +
+                                        producto._id + '"><div class="left"><img class="list-item__thumbnail" src="' + producto.photo + '"></div>\
+                                    <div class="center">\
+                                    <span class="list-item__title">' + producto.name + '</span>\
+                                    <span class="list-item__subtitle">' + producto.description + '</span>\
+                                    <span class="list-item__subtitle">' + producto.price + '</span>\
+                                    </div>\
+                                    </ons-list-item>';
+
+
+
+                                    $("#l_lista").append(item);
+
+                                });
+                            },
+                            error: function (xml, err, status) {
+                                ons.notification.toast(xml.responseJSON.descripcion, {
+                                    "timeout": 3000
+                                });
+                            },
+                            complete: function () {
+                                $("#cargando").hide();
+                            }
+                        });
+                    }
+                </script>
+                <section>
+                    <h1>Listado de Productos</h1>
+                    <p id="saludo"></p>
+                    <ons-list id="l_lista"></ons-list>
+                </section>
+            </ons-page>
+        </template>
+        <template id="t_infoproducto">
+            <ons-page id="p_infoproducto">
+                <script>
+                    ons.getScriptPage().onShow = function () {
+
+                        var producto = this.data.producto;
+                        $(".listado_locales").empty();
+                        $("#producto_imagen").attr('src', producto.photo);
+                        $("#producto_nombre").text(producto.name);
+                        $("#producto_descripcion").text(producto.description);
+                        $("#producto_precio").text("Precio:" + producto.price);
+                        //mapa 
+                        navigator.geolocation.getCurrentPosition(function (pos) {
+                            //latitud, longitud de dispositivo.
+                            var lat = pos.coords.latitude;
+                            var lng = pos.coords.longitude;
+
+                            var map = L.map('map').setView([lat, lng], 15);
+                            //mapa
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            }).addTo(map);
+                            //marcador de usuario
+                            var usuario_icono = L.icon({
+                                iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [34, 34], // size of the icon
+                            });
+                            L.marker([lat, lng], { icon: usuario_icono }).addTo(map)
+                                .bindPopup("Tu ubicacion");
+
+                            //marcador de local
+                            L.marker([producto.branches[0].latitude, producto.branches[0].longitude]).addTo(map)
+                                .bindPopup(producto.branches[0].name)
+                                .openPopup();
+
+                        }, function (error) {
+                            alert(error.code);
+                            alert(error.message);
+                        });
+
+                    }
+                </script>
+                <ons-toolbar>
+                    <div class="right">
+                        <ons-toolbar-button>
+                            <ons-back-button></ons-back-button>
+                        </ons-toolbar-button>
+                    </div>
+                    <div class="center">
+                        Informaci&oacute;n de Producto
+                    </div>
+                </ons-toolbar>
+                <section>
+                    <ons-card>
+                        <img id="producto_imagen" src="" style="width: 100%">
+                        <div class="title">
+                            <p id="producto_nombre"></p>
+                        </div>
+                        <div class="content">
+                            <p id="producto_descripcion"></p>
+                            <div id="map"></div>
+                            <ons-list>
+                                <ons-list-item>
+                                    <span id="producto_precio"></span>
+                                </ons-list-item>
+
+                            </ons-list>
+                        </div>
+                    </ons-card>
+                    <p>
+                        <ons-button id="btn_qr" modifier="large--cta">Scan C&oacute;digo QR</ons-button>
+                    </p>
+                </section>
+            </ons-page>
+        </template>
+</body>
+
+</html>
